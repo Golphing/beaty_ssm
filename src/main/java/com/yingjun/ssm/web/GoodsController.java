@@ -1,6 +1,9 @@
 package com.yingjun.ssm.web;
 
+import com.alibaba.fastjson.JSON;
+import com.yingjun.ssm.dao.AppointmentDao;
 import com.yingjun.ssm.dto.BaseResult;
+import com.yingjun.ssm.entity.Appointment;
 import com.yingjun.ssm.entity.Goods;
 import com.yingjun.ssm.enums.ResultEnum;
 import com.yingjun.ssm.exception.BizException;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -27,15 +31,19 @@ public class GoodsController {
 
     @Autowired
     private GoodsService goodsService;
+    @Resource
+    private AppointmentDao appointmentDao;
 
+    @ResponseBody
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public String list(Model model, Integer offset, Integer limit) {
+        List<Appointment> appointments = appointmentDao.getAll(1);
         LOG.info("invoke----------/goods/list");
         offset = offset == null ? 0 : offset;//默认便宜0
         limit = limit == null ? 50 : limit;//默认展示50条
         List<Goods> list = goodsService.getGoodsList(offset, limit);
         model.addAttribute("goodslist", list);
-        return "goodslist";
+        return JSON.toJSONString(model);
     }
 
     @RequestMapping(value = "/{goodsId}/buy", method = RequestMethod.GET, produces = {"application/json;charset=UTF-8"})
